@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es-CL">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title><?= e($site['name']) ?> · CrossFit y comunidad</title>
+    <meta name="description" content="<?= e($site['description']) ?>">
+    <meta name="theme-color" content="#d5dd00">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="es_CL">
+    <meta property="og:title" content="<?= e($site['name']) ?> · CrossFit y comunidad">
+    <meta property="og:description" content="<?= e($site['description']) ?>">
+    <?php if ($canonical): ?>
+    <link rel="canonical" href="<?= e($canonical) ?>">
+    <meta property="og:url" content="<?= e($canonical) ?>">
+    <?php endif; ?>
+    <link rel="icon" type="image/webp" href="assets/images/simbolo.webp">
+    <link rel="stylesheet" href="assets/css/site.css">
+    <script src="assets/js/site.js" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+<header class="site-header">
+    <div class="container header-inner">
+        <a class="brand" href="#inicio" aria-label="<?= e($site['name']) ?>, inicio">
+            <img src="assets/images/logo.webp" alt="<?= e($site['name']) ?>" width="600" height="144">
+        </a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation" hidden>Menú <span aria-hidden="true">☰</span></button>
+        <nav id="navigation" aria-label="Navegación principal">
+            <a href="#comunidad">Comunidad</a>
+            <a href="#entrenamiento">Entrenamiento</a>
+            <a href="#planes">Planes y horarios</a>
+            <a href="#contacto" class="nav-contact">Conversemos <span aria-hidden="true">↗</span></a>
+        </nav>
+    </div>
+</header>
+<main id="contenido">
+    <section id="inicio" class="hero" aria-labelledby="hero-title">
+        <div class="container hero-grid">
+            <div class="hero-copy">
+                <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> CROSSFIT · CHILE</p>
+                <h1 id="hero-title"><?php foreach ($hero['title_lines'] as $line): ?><span class="hero-line"><?= e($line) ?></span><?php endforeach; ?><span class="hero-line hero-accent"><?= e($hero['title_accent']) ?></span></h1>
+                <p class="hero-description"><?= e($hero['intro']) ?><br>Conoce <?= e($site['name']) ?> y encuentra tu motivo para moverte.</p>
+                <div class="hero-actions">
+                    <a class="button" href="<?= e($links['whatsapp_url'] ?? '#contacto') ?>"><?= $links['whatsapp_url'] ? 'Consultar por WhatsApp' : e($hero['cta']) ?> <span aria-hidden="true">↗</span></a>
+                    <a class="text-link" href="#entrenamiento">Explora el entrenamiento <span aria-hidden="true">↓</span></a>
+                </div>
+                <p class="hero-note"><?= e($hero['note']) ?></p>
+            </div>
+            <?php if ($heroImage): ?>
+            <div class="hero-art hero-media">
+                <img class="hero-photo" src="<?= e($heroImage) ?>" alt="<?= e($hero['image_alt']) ?>" width="1200" height="1200" fetchpriority="high">
+                <?php if ($heroVideo): ?>
+                <video class="hero-video" controls muted playsinline preload="none" poster="<?= e($heroImage) ?>" aria-label="<?= e($hero['video_label']) ?>" width="1200" height="1200">
+                    <source src="<?= e($heroVideo) ?>" type="<?= str_ends_with($heroVideo, '.webm') ? 'video/webm' : 'video/mp4' ?>">
+                    Tu navegador no reproduce este video. Puedes ver la imagen del gimnasio.
+                </video>
+                <?php endif; ?>
+            </div>
+            <?php else: ?>
+            <div class="hero-art hero-graphic" aria-hidden="true">
+                <span class="art-caption">EL MOVIMIENTO NOS REÚNE</span>
+                <span class="art-orbit"></span>
+                <img src="assets/images/simbolo.webp" alt="" width="680" height="680" fetchpriority="high">
+                <div class="art-footer"><span>XOMMA / IDENTIDAD</span><span class="art-stripes"></span></div>
+            </div>
+            <?php endif; ?>
+        </div>
+    </section>
+    <div class="brand-band" aria-hidden="true"><div>CONSTANCIA <span>↗</span> COMUNIDAD <span>↗</span> MOVIMIENTO <span>↗</span> XOMMAFITNES <span>↗</span></div></div>
+    <section id="comunidad" class="section community">
+        <div class="container split">
+            <div><p class="eyebrow">01 / NUESTRA IDENTIDAD</p><h2>EL ESFUERZO<br>SE COMPARTE.</h2></div>
+            <div class="section-copy"><p class="lead">Un nombre. Muchas ganas de moverse.</p><p>Somos <?= e($site['name']) ?>, un gimnasio de CrossFit en Chile. En nuestra identidad hay palabras que nos reúnen: amigos, constancia, fuerza y familia.</p><a class="text-link" href="#galeria">Conoce nuestra identidad <span aria-hidden="true">↘</span></a></div>
+        </div>
+    </section>
+    <section id="entrenamiento" class="section training">
+        <div class="container">
+            <div class="section-heading"><div><p class="eyebrow">02 / ENTRENAMIENTO</p><h2>ENCUENTRA<br>TU MOVIMIENTO.</h2></div><p>El primer paso es conocer el box.<br>La constancia se construye después.</p></div>
+            <?php foreach ($site['programs'] as $index => $program): ?>
+            <article class="program"><span class="program-index"><?= e(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)) ?></span><div><h3><?= e($program['name']) ?></h3><p><?= e($program['description']) ?></p></div><a href="#contacto" aria-label="Consultar por <?= e($program['name']) ?>" class="circle-link">↗</a></article>
+            <?php endforeach; ?>
+        </div>
+    </section>
+    <?php if ($site['coaches']): ?>
+    <section id="equipo" class="section"><div class="container"><p class="eyebrow">EL EQUIPO</p><h2>QUIENES NOS MUEVEN.</h2><div class="info-grid">
+        <?php foreach ($site['coaches'] as $coach): ?><article class="info-panel"><h3><?= e($coach['name']) ?></h3><p><?= e($coach['bio']) ?></p></article><?php endforeach; ?>
+    </div></div></section>
+    <?php endif; ?>
+    <section id="planes" class="section plans"><div class="container">
+        <div class="section-heading"><div><p class="eyebrow">03 / ORGANIZA TU ENTRENAMIENTO</p><h2>HAZLE ESPACIO<br>A TU PRÓXIMO PASO.</h2></div></div>
+        <div class="info-grid">
+            <div class="info-panel"><span class="panel-label">PLANES</span><h3>Tu forma de empezar.</h3>
+                <?php if ($site['plans']): foreach ($site['plans'] as $plan): ?>
+                <article class="plan-row"><h4><?= e($plan['name']) ?></h4><p class="price"><?= e($plan['price']) ?></p><p><?= e($plan['description']) ?></p></article>
+                <?php endforeach; else: ?><p><?= e($site['plans_intro']) ?></p><a class="text-link" href="#contacto">Consultar planes <span aria-hidden="true">↗</span></a><?php endif; ?>
+            </div>
+            <div class="info-panel"><span class="panel-label">HORARIOS</span><h3>Encuentra tu momento.</h3>
+                <?php if ($site['schedule']): ?>
+                <div class="table-scroll"><table><caption class="sr-only">Horarios de entrenamiento</caption><thead><tr><th scope="col">Días</th><th scope="col">Horario</th><th scope="col">Programa</th></tr></thead><tbody>
+                <?php foreach ($site['schedule'] as $slot): ?><tr><td><?= e($slot['days']) ?></td><td><?= e($slot['hours']) ?></td><td><?= e($slot['program']) ?></td></tr><?php endforeach; ?>
+                </tbody></table></div>
+                <?php else: ?><p><?= e($site['schedule_intro']) ?></p><a class="text-link" href="#contacto">Consultar horarios <span aria-hidden="true">↗</span></a><?php endif; ?>
+            </div>
+        </div>
+        <?php if ($links['boxmagic_url']): ?><div class="reservation-note"><p>¿Ya eres parte del box? Gestiona tus reservas en Boxmagic.</p><a class="text-link" href="<?= e($links['boxmagic_url']) ?>">Ir a Boxmagic <span aria-hidden="true">↗</span></a></div><?php endif; ?>
+    </div></section>
+    <section id="galeria" class="section identity"><div class="container">
+        <div class="section-heading"><div><p class="eyebrow">DESDE ADENTRO</p><h2>ASÍ NOS IDENTIFICAMOS.</h2></div><p>Negro, blanco y toda la energía del amarillo.<br>Esta es la identidad de Xommafitnes.</p></div>
+        <div class="identity-grid">
+            <figure class="identity-logo"><img src="assets/images/logo.webp" width="600" height="144" alt="Logotipo de Xomma Fitness en blanco y amarillo sobre negro" loading="lazy"><figcaption>NUESTRO NOMBRE / NUESTRA ENERGÍA</figcaption></figure>
+            <figure class="identity-symbol"><img src="assets/images/identidad.webp" width="640" height="640" alt="Símbolo amarillo de Xomma con palabras como amigos, fuerza y constancia" loading="lazy"><figcaption>PALABRAS QUE NOS MUEVEN</figcaption></figure>
+        </div>
+        <?php if ($gallery): ?><div class="photo-grid"><?php foreach ($gallery as $photo): ?>
+            <figure><img src="<?= e($photo['src']) ?>" alt="<?= e($photo['alt']) ?>" width="<?= (int) $photo['width'] ?>" height="<?= (int) $photo['height'] ?>" loading="lazy" decoding="async"></figure>
+        <?php endforeach; ?></div><?php endif; ?>
+    </div></section>
+    <section id="preguntas" class="section faq"><div class="container split">
+        <div><p class="eyebrow">ANTES DE DAR EL PASO</p><h2>¿CONVERSAMOS?</h2><p>Algunas respuestas para empezar.</p></div>
+        <div class="faq-list"><?php foreach ($site['faq'] as $item): ?><details><summary><?= e($item['question']) ?><span aria-hidden="true">+</span></summary><p><?= e($item['answer']) ?></p></details><?php endforeach; ?></div>
+    </div></section>
+    <section id="contacto" class="section contact"><div class="container">
+        <p class="eyebrow">TU SIGUIENTE PASO</p><h2>HAGAMOS<br>QUE PASE<span>.</span></h2>
+        <div class="contact-grid"><div><p class="contact-intro">Conoce el box. Pregunta por los planes.<br>Encuentra una razón para comenzar.</p>
+            <?php if ($links['whatsapp_url']): ?><a class="button" href="<?= e($links['whatsapp_url']) ?>">Hablemos por WhatsApp <span aria-hidden="true">↗</span></a>
+            <?php elseif ($email): ?><a class="button" href="mailto:<?= e($email) ?>">Escríbenos <span aria-hidden="true">↗</span></a>
+            <?php else: ?><div class="contact-status"><span class="status-dot" aria-hidden="true"></span><p>Pronto compartiremos nuestros canales oficiales de contacto.</p></div><?php endif; ?>
+        </div><dl class="contact-details"><div><dt>UBICACIÓN</dt><dd><?= e($contact['address'] ?: 'Chile') ?></dd><?php if ($links['maps_url']): ?><dd><a href="<?= e($links['maps_url']) ?>">Ver ubicación en el mapa ↗</a></dd><?php endif; ?></div>
+            <?php if ($email): ?><div><dt>CORREO</dt><dd><a href="mailto:<?= e($email) ?>"><?= e($email) ?></a></dd></div><?php endif; ?>
+            <?php if ($links['instagram_url'] || $links['facebook_url']): ?><div><dt>ENCUÉNTRANOS</dt><dd class="social-links">
+                <?php if ($links['instagram_url']): ?><a href="<?= e($links['instagram_url']) ?>">Instagram ↗</a><?php endif; ?>
+                <?php if ($links['facebook_url']): ?><a href="<?= e($links['facebook_url']) ?>">Facebook ↗</a><?php endif; ?>
+            </dd></div><?php endif; ?>
+        </dl></div>
+    </div></section>
+</main>
+<footer><div class="container footer-inner"><a class="footer-name" href="#inicio"><?= e($site['name']) ?></a><p>© <?= date('Y') ?> <?= e($site['name']) ?> · Chile</p><a href="#inicio">Volver arriba ↑</a></div></footer>
+<?php if ($links['whatsapp_url']): ?><a class="floating-contact" href="<?= e($links['whatsapp_url']) ?>" aria-label="Contactar a Xommafitnes por WhatsApp">WhatsApp ↗</a><?php endif; ?>
+</body>
+</html>

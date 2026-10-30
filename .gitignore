@@ -1,0 +1,12 @@
+/config/local.php
+/storage/*
+!/storage/.gitkeep
+/vendor/
+/.env
+/.qa/
+*.log
+*.csv
+*.xlsx
+*.sql
+*.zip
+
