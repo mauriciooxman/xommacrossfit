@@ -37,10 +37,40 @@ check(str_contains($page, 'lang="es-CL"'), 'Idioma');
 check(substr_count($page, '<h1 ') === 1, 'Un H1');
 check(!str_contains($page, '<form'), 'Sin recepción ficticia');
 check(!str_contains($page, 'rel="canonical"'), 'Sin dominio supuesto');
-check(!str_contains($page, 'href="https://'), 'Sin canales sin confirmar');
+check(str_contains($page, 'href="https://www.instagram.com/xommafitness/"'), 'Instagram confirmado visible');
+foreach (['whatsapp_url', 'maps_url', 'facebook_url', 'boxmagic_url'] as $pendingChannel) {
+    check($site['contact'][$pendingChannel] === null, 'Canal pendiente sin publicar: ' . $pendingChannel);
+}
 check(!str_contains($page, 'id="equipo"'), 'Sin entrenadores inventados');
 check(!str_contains($page, 'class="floating-contact"'), 'Sin WhatsApp sin confirmar');
 check_links($page);
+
+// Disciplinas confirmadas: consultas útiles sin número ni imágenes ficticias.
+check(substr_count($page, 'class="program"') === 4, 'Cuatro disciplinas en el bloque existente');
+check(substr_count($page, 'id="entrenamiento"') === 1, 'Un único bloque de entrenamiento');
+check(!str_contains($page, 'class="program-media"'), 'Sin huecos para fotos pendientes');
+foreach ($site['programs'] as $program) {
+    check(str_contains($page, 'href="#contacto" class="text-link program-cta">' . e($program['cta'])), 'Consulta disponible: ' . $program['name']);
+    $url = program_consult_url('https://wa.me/15555550100?text=anterior', $program['message']);
+    parse_str(parse_url($url, PHP_URL_QUERY), $query);
+    check(($query['text'] ?? '') === $program['message'], 'Mensaje específico codificado: ' . $program['name']);
+}
+foreach ([null, 'javascript:alert(1)', 'https://example.org/15555550100', 'https://wa.me/sin-numero'] as $whatsapp) {
+    check(program_consult_url($whatsapp, 'Consulta') === '#contacto', 'Sin WhatsApp válido se usa contacto');
+}
+$programPhoto = $site;
+$programPhoto['programs'][0]['image'] = 'assets/images/logo.webp';
+$programPhoto['programs'][0]['image_alt'] = 'Foto "de prueba"';
+$programPhoto['programs'][0]['image_position_mobile'] = '25% 80%';
+$programPhoto['programs'][1]['image'] = '../../config/site.php';
+$programPhoto['programs'][2]['image'] = 'https://example.org/foto.jpg';
+$programPhoto['programs'][3]['image'] = 'assets/images/no-existe.webp';
+$programPhotoPage = html($programPhoto);
+check(substr_count($programPhotoPage, 'class="program-media"') === 1, 'Solo fotografía local existente');
+check(str_contains($programPhotoPage, 'data-photo-position-mobile="25% 80%"'), 'Enfoque móvil por disciplina');
+check(str_contains($programPhotoPage, 'alt="Foto &quot;de prueba&quot;"'), 'Escape de descripción de disciplina');
+check(str_contains($programPhotoPage, 'loading="lazy" decoding="async"'), 'Fotos secundarias diferidas');
+check_links($programPhotoPage);
 
 // Fixtures sintéticos solo en memoria: no son datos comerciales del gimnasio.
 $fixture = $site;
@@ -75,7 +105,20 @@ check(!str_contains($invalid, 'javascript:'), 'Sin URL ejecutable en vista');
 check(!str_contains($invalid, 'class="photo-grid"'), 'Ruta de imagen privada rechazada');
 
 // Medios del hero: la ausencia de material mantiene la composición de marca.
-check(str_contains($page, 'hero-graphic'), 'Hero gráfico sin material real');
+$withoutPhoto = $site;
+$withoutPhoto['hero']['image'] = null;
+check(str_contains(html($withoutPhoto), 'hero-graphic'), 'Hero gráfico sin material real');
+check(str_contains($page, 'comunidad-xomma-1200.webp'), 'Fotografía de comunidad configurada');
+check(str_contains($page, '1200w'), 'Derivados responsivos disponibles');
+check(str_contains($page, 'width="1200" height="1600"'), 'Dimensiones reales de la fotografía');
+check(str_contains($page, 'fetchpriority="high" loading="eager"'), 'Foto principal sin carga diferida');
+check(str_contains($page, 'data-photo-position-mobile="50% 90%"'), 'Enfoque móvil independiente');
+$invalidFocus = $site;
+$invalidFocus['hero']['image_position_mobile'] = '0%;background:url(https://example.org)';
+$invalidFocus['hero']['image_variants'] = ['../../config/site.php', 'https://example.org/photo.jpg'];
+$invalidFocusPage = html($invalidFocus);
+check(!str_contains($invalidFocusPage, 'background:url'), 'Enfoque solo admite porcentajes');
+check(!str_contains($invalidFocusPage, 'srcset='), 'Fuentes externas y privadas rechazadas');
 check(!str_contains($page, '<video'), 'Sin video ni descargas vacías por defecto');
 check(!str_contains($page, 'gallery-note'), 'Sin placeholder público de fotografías');
 $media = $site;

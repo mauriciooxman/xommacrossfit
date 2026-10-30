@@ -22,6 +22,12 @@ if (toggle && navigation) {
   });
 }
 
+// Propiedades CSS desde datos validados, compatibles con la CSP sin estilos inline.
+document.querySelectorAll('[data-photo-position]').forEach((media) => {
+  media.style.setProperty('--photo-position', media.dataset.photoPosition);
+  media.style.setProperty('--photo-position-mobile', media.dataset.photoPositionMobile);
+});
+
 // El video es manual; ante un fallo de carga permanece la foto de respaldo.
 const heroVideo = document.querySelector('.hero-video');
 if (heroVideo) {

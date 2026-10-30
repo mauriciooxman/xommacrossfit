@@ -48,8 +48,8 @@
                 <p class="hero-note"><?= e($hero['note']) ?></p>
             </div>
             <?php if ($heroImage): ?>
-            <div class="hero-art hero-media">
-                <img class="hero-photo" src="<?= e($heroImage) ?>" alt="<?= e($hero['image_alt']) ?>" width="1200" height="1200" fetchpriority="high">
+            <div class="hero-art hero-media" data-photo-position="<?= e($heroPosition) ?>" data-photo-position-mobile="<?= e($heroMobilePosition) ?>">
+                <img class="hero-photo" src="<?= e($heroImage) ?>"<?php if ($heroSources): ?> srcset="<?= e(implode(', ', $heroSources)) ?>" sizes="(max-width: 760px) min(450px, calc(100vw - 58px)), (max-width: 1200px) 44vw, 520px"<?php endif; ?> alt="<?= e($hero['image_alt']) ?>" width="<?= $heroImageSize[0] ?>" height="<?= $heroImageSize[1] ?>" fetchpriority="high" loading="eager">
                 <?php if ($heroVideo): ?>
                 <video class="hero-video" controls muted playsinline preload="none" poster="<?= e($heroImage) ?>" aria-label="<?= e($hero['video_label']) ?>" width="1200" height="1200">
                     <source src="<?= e($heroVideo) ?>" type="<?= str_ends_with($heroVideo, '.webm') ? 'video/webm' : 'video/mp4' ?>">
@@ -74,12 +74,26 @@
             <div class="section-copy"><p class="lead">Un nombre. Muchas ganas de moverse.</p><p>Somos <?= e($site['name']) ?>, un gimnasio de CrossFit en Chile. En nuestra identidad hay palabras que nos reúnen: amigos, constancia, fuerza y familia.</p><a class="text-link" href="#galeria">Conoce nuestra identidad <span aria-hidden="true">↘</span></a></div>
         </div>
     </section>
-    <section id="entrenamiento" class="section training">
+    <section id="entrenamiento" class="section training" aria-labelledby="training-title">
         <div class="container">
-            <div class="section-heading"><div><p class="eyebrow">02 / ENTRENAMIENTO</p><h2>ENCUENTRA<br>TU MOVIMIENTO.</h2></div><p>El primer paso es conocer el box.<br>La constancia se construye después.</p></div>
-            <?php foreach ($site['programs'] as $index => $program): ?>
-            <article class="program"><span class="program-index"><?= e(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)) ?></span><div><h3><?= e($program['name']) ?></h3><p><?= e($program['description']) ?></p></div><a href="#contacto" aria-label="Consultar por <?= e($program['name']) ?>" class="circle-link">↗</a></article>
+            <div class="section-heading"><div><p class="eyebrow">02 / ENTRENAMIENTO</p><h2 id="training-title"><?= e($site['training_title']) ?></h2></div><p><?= e($site['training_intro']) ?></p></div>
+            <div class="program-grid">
+            <?php foreach ($programs as $index => $program): ?>
+            <article class="program" aria-labelledby="program-<?= $index ?>">
+                <?php if ($program['image']): ?>
+                <div class="program-media" data-photo-position="<?= e($program['image_position']) ?>" data-photo-position-mobile="<?= e($program['image_position_mobile']) ?>">
+                    <img class="program-photo" src="<?= e($program['image']) ?>" alt="<?= e($program['image_alt']) ?>" width="<?= $program['image_size'][0] ?>" height="<?= $program['image_size'][1] ?>" loading="lazy" decoding="async">
+                </div>
+                <?php endif; ?>
+                <div class="program-body">
+                    <span class="program-index" aria-hidden="true"><?= e(str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)) ?> /</span>
+                    <h3 id="program-<?= $index ?>"><?= e($program['name']) ?></h3>
+                    <p><?= e($program['description']) ?></p>
+                    <a href="<?= e($program['consult_url']) ?>" class="text-link program-cta"><?= e($program['cta']) ?> <span aria-hidden="true">↗</span></a>
+                </div>
+            </article>
             <?php endforeach; ?>
+            </div>
         </div>
     </section>
     <?php if ($site['coaches']): ?>
