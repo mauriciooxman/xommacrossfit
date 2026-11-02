@@ -38,6 +38,21 @@ check(substr_count($page, '<h1 ') === 1, 'Un H1');
 check(!str_contains($page, '<form'), 'Sin recepción ficticia');
 check(!str_contains($page, 'rel="canonical"'), 'Sin dominio supuesto');
 check(str_contains($page, 'href="https://www.instagram.com/xommafitness/"'), 'Instagram confirmado visible');
+check(str_contains($page, '>Consultar por Instagram <span'), 'Instagram como acción cuando faltan WhatsApp y correo');
+check(!str_contains($page, 'Pronto compartiremos nuestros canales oficiales'), 'Sin mensaje de canales pendientes cuando existe Instagram');
+$contactFixture = $site;
+$contactFixture['contact']['instagram_url'] = null;
+$contactFixture['contact']['facebook_url'] = 'https://www.facebook.com/example';
+check(str_contains(html($contactFixture), '>Consultar por Facebook <span'), 'Facebook como alternativa confirmada');
+$contactFixture['contact']['facebook_url'] = null;
+check(str_contains(html($contactFixture), 'Pronto compartiremos nuestros canales oficiales'), 'Sin botón ficticio cuando no hay canales');
+$contactFixture['contact']['instagram_url'] = 'javascript:alert(1)';
+check(!str_contains(html($contactFixture), '>Consultar por Instagram <span'), 'Instagram inseguro no genera acción');
+$contactFixture = $site;
+$contactFixture['contact']['email'] = 'test@example.org';
+check(str_contains(html($contactFixture), 'class="button" href="mailto:test@example.org"'), 'Correo tiene prioridad sobre redes');
+$contactFixture['contact']['whatsapp_url'] = 'https://wa.me/15555550100';
+check(str_contains(html($contactFixture), '>Hablemos por WhatsApp <span'), 'WhatsApp mantiene prioridad sobre correo y redes');
 foreach (['whatsapp_url', 'maps_url', 'facebook_url', 'boxmagic_url'] as $pendingChannel) {
     check($site['contact'][$pendingChannel] === null, 'Canal pendiente sin publicar: ' . $pendingChannel);
 }

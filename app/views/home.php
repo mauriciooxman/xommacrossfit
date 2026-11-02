@@ -138,6 +138,8 @@
         <div class="contact-grid"><div><p class="contact-intro">Conoce el box. Pregunta por los planes.<br>Encuentra una razón para comenzar.</p>
             <?php if ($links['whatsapp_url']): ?><a class="button" href="<?= e($links['whatsapp_url']) ?>">Hablemos por WhatsApp <span aria-hidden="true">↗</span></a>
             <?php elseif ($email): ?><a class="button" href="mailto:<?= e($email) ?>">Escríbenos <span aria-hidden="true">↗</span></a>
+            <?php elseif ($links['instagram_url']): ?><a class="button" href="<?= e($links['instagram_url']) ?>">Consultar por Instagram <span aria-hidden="true">↗</span></a>
+            <?php elseif ($links['facebook_url']): ?><a class="button" href="<?= e($links['facebook_url']) ?>">Consultar por Facebook <span aria-hidden="true">↗</span></a>
             <?php else: ?><div class="contact-status"><span class="status-dot" aria-hidden="true"></span><p>Pronto compartiremos nuestros canales oficiales de contacto.</p></div><?php endif; ?>
         </div><dl class="contact-details"><div><dt>UBICACIÓN</dt><dd><?= e($contact['address'] ?: 'Chile') ?></dd><?php if ($links['maps_url']): ?><dd><a href="<?= e($links['maps_url']) ?>">Ver ubicación en el mapa ↗</a></dd><?php endif; ?></div>
             <?php if ($email): ?><div><dt>CORREO</dt><dd><a href="mailto:<?= e($email) ?>"><?= e($email) ?></a></dd></div><?php endif; ?>
