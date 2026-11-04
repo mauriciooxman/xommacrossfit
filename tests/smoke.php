@@ -53,12 +53,108 @@ $contactFixture['contact']['email'] = 'test@example.org';
 check(str_contains(html($contactFixture), 'class="button" href="mailto:test@example.org"'), 'Correo tiene prioridad sobre redes');
 $contactFixture['contact']['whatsapp_url'] = 'https://wa.me/15555550100';
 check(str_contains(html($contactFixture), '>Hablemos por WhatsApp <span'), 'WhatsApp mantiene prioridad sobre correo y redes');
-foreach (['whatsapp_url', 'maps_url', 'facebook_url', 'boxmagic_url'] as $pendingChannel) {
+foreach (['whatsapp_url', 'maps_url', 'facebook_url', 'boxmagic_url', 'boxmagic_store_url'] as $pendingChannel) {
     check($site['contact'][$pendingChannel] === null, 'Canal pendiente sin publicar: ' . $pendingChannel);
 }
 check(!str_contains($page, 'id="equipo"'), 'Sin entrenadores inventados');
 check(!str_contains($page, 'class="floating-contact"'), 'Sin WhatsApp sin confirmar');
 check_links($page);
+
+// Accesos Boxmagic independientes: datos temporales solo en memoria.
+function plans_html(array $site): string
+{
+    preg_match('~<section id="planes".*?</section>~s', html($site), $match);
+    return $match[0] ?? '';
+}
+$plansPage = plans_html($site);
+check(str_contains($plansPage, '<h3 id="plans-title">Planes mensuales Full Day</h3>'), 'Título comercial Full Day');
+check(str_contains($plansPage, '<h2>Planes y horarios</h2>'), 'Título directo de la sección');
+check(str_contains($plansPage, '<caption>Precios mensuales en pesos chilenos (CLP)</caption>'), 'Unidad de precios indicada una sola vez');
+preg_match_all('~<tr><th scope="row">([0-9]+) clases</th><td>(\$[0-9.]+)</td></tr>~', $plansPage, $planRows, PREG_SET_ORDER);
+check(array_map(static fn (array $row): array => [$row[1], $row[2]], $planRows) === [
+    ['8', '$45.000'], ['12', '$50.000'], ['16', '$55.000'], ['20', '$60.000'],
+    ['24', '$65.000'], ['28', '$70.000'], ['32', '$75.000'],
+], 'Siete pares exactos y ordenados en el HTML');
+foreach ($site['plans'] as $plan) {
+    check(is_int($plan['classes']) && is_int($plan['price']), 'Clases y CLP almacenados como enteros');
+}
+check(str_contains($plansPage, 'aria-labelledby="plans-title" aria-describedby="plans-condition"'), 'Tabla asociada a título y condición');
+check(str_contains($plansPage, '<p id="plans-condition" class="plans-condition">Las clases son mensuales y no se acumulan para el mes siguiente.</p>'), 'Condición exacta bajo la tabla');
+check(strpos($plansPage, '</table>') < strpos($plansPage, 'id="plans-condition"') && strpos($plansPage, 'id="plans-condition"') < strpos($plansPage, '>Consultar planes'), 'Tabla, condición y consulta en orden');
+check(substr_count($plansPage, '>Consultar planes <span') === 1, 'Consulta única bajo la tabla');
+$emptyPlans = $site;
+$emptyPlans['plans'] = [];
+check(!str_contains(plans_html($emptyPlans), 'class="plans-table"'), 'Sin tabla vacía cuando faltan planes');
+check(str_contains($plansPage, 'class="button" href="https://www.instagram.com/xommafitness/">Consultar planes'), 'Consulta principal al contacto confirmado');
+check(!str_contains($plansPage, 'Comprar o renovar plan') && !str_contains($plansPage, 'Agendar clase'), 'Sin acciones Boxmagic pendientes');
+check(!str_contains($plansPage, 'plan-row'), 'Sin tarjetas de planes vacías');
+check(str_contains($page, 'href="#planes">Planes y horarios'), 'Navegación conserva ancla');
+foreach ([[true, false], [false, true], [true, true]] as [$store, $booking]) {
+    $access = $site;
+    $access['contact']['boxmagic_store_url'] = $store ? 'https://example.org/store?box=1&source=web' : null;
+    $access['contact']['boxmagic_url'] = $booking ? 'https://example.org/booking' : null;
+    $accessPage = plans_html($access);
+    check(str_contains($accessPage, 'Comprar o renovar plan') === $store, 'Tienda independiente');
+    check(str_contains($accessPage, 'Agendar clase') === $booking, 'Reservas independientes');
+    check(str_contains($accessPage, 'href="https://www.instagram.com/xommafitness/">Consultar planes'), 'Consultas se mantienen con Boxmagic');
+    if ($store) check(str_contains($accessPage, 'class="button" href="https://example.org/store?box=1&amp;source=web">Comprar o renovar plan'), 'Compra principal con URL escapada');
+    if ($booking) check(str_contains($accessPage, 'href="https://example.org/booking">Agendar clase'), 'Reserva con destino propio');
+    check_links(html($access));
+}
+foreach (['boxmagic_store_url' => 'Comprar o renovar plan', 'boxmagic_url' => 'Agendar clase'] as $key => $label) {
+    foreach (['', 'javascript:alert(1)', 'http://example.org', '//example.org', 'https://user:pass@example.org', "https://example.org\nmal"] as $badUrl) {
+        $access = $site;
+        $access['contact'][$key] = $badUrl;
+        check(!str_contains(plans_html($access), $label), 'URL inválida omite acción: ' . $key);
+    }
+}
+foreach ([
+    ['whatsapp_url', 'https://wa.me/15555550100', 'https://wa.me/15555550100'],
+    ['email', 'test@example.org', 'mailto:test@example.org'],
+    ['facebook_url', 'https://www.facebook.com/example', 'https://www.facebook.com/example'],
+] as [$key, $value, $destination]) {
+    $access = $site;
+    $access['contact']['instagram_url'] = null;
+    $access['contact'][$key] = $value;
+    check(str_contains(plans_html($access), 'href="' . $destination . '">Consultar planes'), 'Canal compartido: ' . $key);
+}
+$schedule = $site;
+check($site['schedule'] === [
+    ['days' => 'Martes a viernes', 'hours' => '08:00', 'program' => 'CrossFit'],
+    ['days' => 'Martes a viernes', 'hours' => '09:00', 'program' => 'Halterofilia'],
+    ['days' => 'Martes a viernes', 'hours' => '10:00', 'program' => 'CrossFit'],
+    ['days' => 'Lunes a viernes', 'hours' => '18:00', 'program' => 'CrossFit'],
+    ['days' => 'Lunes', 'hours' => '19:00', 'program' => 'CrossFit'],
+    ['days' => 'Martes a viernes', 'hours' => '19:00', 'program' => 'Halterofilia'],
+    ['days' => 'Lunes, miércoles y viernes', 'hours' => '20:00', 'program' => 'Fatburn'],
+    ['days' => 'Martes y jueves', 'hours' => '20:00', 'program' => 'CrossFit'],
+    ['days' => 'Lunes a jueves', 'hours' => '21:00', 'program' => 'CrossFit'],
+    ['days' => 'Sábados, domingos y feriados', 'hours' => '10:00', 'program' => 'CrossFit'],
+], 'Horarios transcritos de la imagen sin completar celdas vacías');
+foreach ($site['schedule'] as $slot) {
+    check(str_contains($plansPage, '<time>' . e($slot['hours']) . '</time><span>' . e($slot['program']) . '</span>'), 'Hora y disciplina de la fuente presentes en HTML');
+}
+$schedule['schedule'] = [['days' => 'Lunes', 'hours' => '18:30', 'program' => 'Disciplina de prueba']];
+check(str_contains(plans_html($schedule), '<time>18:30</time><span>Disciplina de prueba</span>'), 'Agenda responde a cambios de configuración');
+$agenda = schedule_by_day($site['schedule']);
+$expectedDays = [
+    [['18:00', 'CrossFit'], ['19:00', 'CrossFit'], ['20:00', 'Fatburn'], ['21:00', 'CrossFit']],
+    [['08:00', 'CrossFit'], ['09:00', 'Halterofilia'], ['10:00', 'CrossFit'], ['18:00', 'CrossFit'], ['19:00', 'Halterofilia'], ['20:00', 'CrossFit'], ['21:00', 'CrossFit']],
+    [['08:00', 'CrossFit'], ['09:00', 'Halterofilia'], ['10:00', 'CrossFit'], ['18:00', 'CrossFit'], ['19:00', 'Halterofilia'], ['20:00', 'Fatburn'], ['21:00', 'CrossFit']],
+    [['08:00', 'CrossFit'], ['09:00', 'Halterofilia'], ['10:00', 'CrossFit'], ['18:00', 'CrossFit'], ['19:00', 'Halterofilia'], ['20:00', 'CrossFit'], ['21:00', 'CrossFit']],
+    [['08:00', 'CrossFit'], ['09:00', 'Halterofilia'], ['10:00', 'CrossFit'], ['18:00', 'CrossFit'], ['19:00', 'Halterofilia'], ['20:00', 'Fatburn']],
+    [['10:00', 'CrossFit']], [['10:00', 'CrossFit']], [['10:00', 'CrossFit']],
+];
+foreach ($agenda as $index => $day) {
+    check(array_map(static fn (array $slot): array => [$slot['hours'], $slot['program']], $day['classes']) === $expectedDays[$index], 'Agenda exacta y ordenada: ' . $day['name']);
+    preg_match('~<div class="agenda-day" id="agenda-day-' . $index . '">(.*?)</div>~s', $plansPage, $dayHtml);
+    preg_match_all('~<time>([^<]+)</time><span>([^<]+)</span>~', $dayHtml[1] ?? '', $rows, PREG_SET_ORDER);
+    check(array_map(static fn (array $row): array => [$row[1], $row[2]], $rows) === $expectedDays[$index], 'HTML del día coincide con agenda: ' . $day['name']);
+    check(!str_contains($dayHtml[0] ?? '', ' hidden'), 'Día visible sin JavaScript: ' . $day['name']);
+}
+check(str_contains($plansPage, 'aria-label="Feriados"'), 'Feriados explícitos en el selector');
+$finalConfig = require dirname(__DIR__) . '/config/site.php';
+check($finalConfig['contact']['boxmagic_url'] === null && $finalConfig['contact']['boxmagic_store_url'] === null, 'Configuración final sin URLs de prueba');
 
 // Disciplinas confirmadas: consultas útiles sin número ni imágenes ficticias.
 check(substr_count($page, 'class="program"') === 4, 'Cuatro disciplinas en el bloque existente');
@@ -97,14 +193,19 @@ foreach (['whatsapp_url', 'maps_url', 'instagram_url', 'facebook_url', 'boxmagic
 $fixture['contact']['email'] = 'test@example.org';
 $fixture['contact']['address'] = 'Dirección sintética <b>prueba</b>';
 $fixture['coaches'] = [['name' => 'Prueba', 'bio' => '<svg onload=alert(1)>']];
-$fixture['plans'] = [['name' => 'Prueba', 'price' => 'No comercial', 'description' => '<b>Prueba</b>']];
-$fixture['schedule'] = [['days' => 'Prueba', 'hours' => 'Prueba', 'program' => 'Prueba']];
+$fixture['plans'] = [['classes' => 1, 'price' => 1234]];
+$fixture['plans_title'] = 'Prueba <b>escape</b>';
+$fixture['plans_condition'] = 'Condición <script>prueba</script>';
+$fixture['schedule'] = [['days' => 'Lunes', 'hours' => '18:30', 'program' => 'Prueba']];
 $fixture['gallery'] = [['src' => 'assets/images/logo.webp', 'alt' => 'Prueba "escape"', 'width' => 600, 'height' => 144]];
 $configured = html($fixture);
 check(str_contains($configured, '&lt;script&gt;inseguro&lt;/script&gt;'), 'Escape de nombre');
 check(!str_contains($configured, '<svg'), 'Escape de biografía');
 check(str_contains($configured, 'id="equipo"'), 'Equipo confirmado visible');
-check(str_contains($configured, '<table>'), 'Horarios confirmados visibles');
+check(str_contains($configured, '<time>18:30</time><span>Prueba</span>'), 'Horarios configurados visibles');
+check(str_contains($configured, 'Prueba &lt;b&gt;escape&lt;/b&gt;'), 'Escape del título de planes');
+check(str_contains($configured, 'Condición &lt;script&gt;prueba&lt;/script&gt;'), 'Escape de condición de planes');
+check(str_contains($configured, '<td>$1.234</td>'), 'Precio entero formateado al renderizar');
 check(str_contains($configured, 'class="photo-grid"'), 'Galería configurada visible');
 check(str_contains($configured, 'class="floating-contact"'), 'WhatsApp configurado visible');
 check(str_contains($configured, 'href="mailto:test@example.org"'), 'Correo confirmado visible');
@@ -123,11 +224,18 @@ check(!str_contains($invalid, 'class="photo-grid"'), 'Ruta de imagen privada rec
 $withoutPhoto = $site;
 $withoutPhoto['hero']['image'] = null;
 check(str_contains(html($withoutPhoto), 'hero-graphic'), 'Hero gráfico sin material real');
-check(str_contains($page, 'comunidad-xomma-1200.webp'), 'Fotografía de comunidad configurada');
-check(str_contains($page, '1200w'), 'Derivados responsivos disponibles');
-check(str_contains($page, 'width="1200" height="1600"'), 'Dimensiones reales de la fotografía');
+check(str_contains($page, 'src="assets/images/box-xomma.jpeg"'), 'Nueva fotografía del box configurada');
+check(!str_contains($page, 'comunidad-xomma-'), 'Sin variantes antiguas de comunidad en portada');
+check(str_contains($page, 'width="900" height="1600"'), 'Dimensiones reales de la fotografía');
 check(str_contains($page, 'fetchpriority="high" loading="eager"'), 'Foto principal sin carga diferida');
-check(str_contains($page, 'data-photo-position-mobile="50% 90%"'), 'Enfoque móvil independiente');
+check(str_contains($page, 'data-photo-position-mobile="50% 65%"'), 'Enfoque móvil configurado');
+check(str_contains($page, 'href="assets/images/horarios-xomma.jpeg" target="_blank" rel="noopener"'), 'Afiche secundario abre sin abandonar la página');
+check(!str_contains($page, 'src="assets/images/horarios-xomma.jpeg"'), 'Sin afiche gigante ni descarga de imagen de agenda');
+check(str_contains($page, 'Ver afiche de horarios'), 'Acceso secundario al afiche');
+$invalidSchedule = $site;
+$invalidSchedule['schedule_image'] = '../../config/site.php';
+check(!str_contains(html($invalidSchedule), 'class="schedule-poster"'), 'Imagen privada de horarios rechazada');
+check(str_contains(html($invalidSchedule), '<span>Fatburn</span>'), 'Agenda disponible si falta imagen válida');
 $invalidFocus = $site;
 $invalidFocus['hero']['image_position_mobile'] = '0%;background:url(https://example.org)';
 $invalidFocus['hero']['image_variants'] = ['../../config/site.php', 'https://example.org/photo.jpg'];

@@ -102,22 +102,42 @@
     </div></div></section>
     <?php endif; ?>
     <section id="planes" class="section plans"><div class="container">
-        <div class="section-heading"><div><p class="eyebrow">03 / ORGANIZA TU ENTRENAMIENTO</p><h2>HAZLE ESPACIO<br>A TU PRÓXIMO PASO.</h2></div></div>
-        <div class="info-grid">
-            <div class="info-panel"><span class="panel-label">PLANES</span><h3>Tu forma de empezar.</h3>
-                <?php if ($site['plans']): foreach ($site['plans'] as $plan): ?>
-                <article class="plan-row"><h4><?= e($plan['name']) ?></h4><p class="price"><?= e($plan['price']) ?></p><p><?= e($plan['description']) ?></p></article>
-                <?php endforeach; else: ?><p><?= e($site['plans_intro']) ?></p><a class="text-link" href="#contacto">Consultar planes <span aria-hidden="true">↗</span></a><?php endif; ?>
+        <div class="section-heading"><h2>Planes y horarios</h2></div>
+        <div class="planning-grid">
+            <div class="rates-block"><h3 id="plans-title"><?= e($site['plans_title']) ?></h3>
+                <?php if ($site['plans']): ?>
+                <table class="plans-table" aria-labelledby="plans-title" aria-describedby="plans-condition">
+                    <caption>Precios mensuales en pesos chilenos (CLP)</caption>
+                    <tbody>
+                    <?php foreach ($site['plans'] as $plan): ?>
+                    <tr><th scope="row"><?= e((string) $plan['classes']) ?> clases</th><td><?= e('$' . number_format($plan['price'], 0, ',', '.')) ?></td></tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+                <p id="plans-condition" class="plans-condition"><?= e($site['plans_condition']) ?></p>
+                <?php else: ?><p><?= e($site['plans_intro']) ?></p><?php endif; ?>
+                <div class="plan-actions">
+                    <?php if ($links['boxmagic_store_url']): ?><a class="button" href="<?= e($links['boxmagic_store_url']) ?>">Comprar o renovar plan <span aria-hidden="true">↗</span></a><?php endif; ?>
+                    <a class="<?= $links['boxmagic_store_url'] ? 'text-link' : 'button' ?>" href="<?= e($consultUrl ?? '#contacto') ?>">Consultar planes <span aria-hidden="true">↗</span></a>
+                </div>
             </div>
-            <div class="info-panel"><span class="panel-label">HORARIOS</span><h3>Encuentra tu momento.</h3>
-                <?php if ($site['schedule']): ?>
-                <div class="table-scroll"><table><caption class="sr-only">Horarios de entrenamiento</caption><thead><tr><th scope="col">Días</th><th scope="col">Horario</th><th scope="col">Programa</th></tr></thead><tbody>
-                <?php foreach ($site['schedule'] as $slot): ?><tr><td><?= e($slot['days']) ?></td><td><?= e($slot['hours']) ?></td><td><?= e($slot['program']) ?></td></tr><?php endforeach; ?>
-                </tbody></table></div>
-                <?php else: ?><p><?= e($site['schedule_intro']) ?></p><a class="text-link" href="#contacto">Consultar horarios <span aria-hidden="true">↗</span></a><?php endif; ?>
+            <div class="agenda-block" data-agenda><h3>Horarios de clases</h3>
+                <div class="day-controls" aria-label="Día de entrenamiento" hidden>
+                <?php foreach ($scheduleDays as $index => $day): ?><button type="button" id="day-control-<?= $index ?>" aria-label="<?= e($day['name']) ?>" aria-controls="agenda-day-<?= $index ?>"><?= e(['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom', 'Feriados'][$index]) ?></button><?php endforeach; ?>
+                </div>
+                <?php foreach ($scheduleDays as $index => $day): ?>
+                <div class="agenda-day" id="agenda-day-<?= $index ?>">
+                    <h4><?= e($day['name']) ?></h4>
+                    <?php if ($day['classes']): ?><ul class="class-list">
+                    <?php foreach ($day['classes'] as $slot): ?><li><time><?= e($slot['hours']) ?></time><span><?= e($slot['program']) ?></span></li><?php endforeach; ?>
+                    </ul><?php else: ?><p>No hay clases publicadas para este día.</p><?php endif; ?>
+                </div>
+                <?php endforeach; ?>
+                <a class="text-link" href="<?= e($consultUrl ?? '#contacto') ?>">Consultar horarios <span aria-hidden="true">↗</span></a>
+                <?php if ($scheduleImage): ?><p class="poster-link"><a href="<?= e($scheduleImage) ?>" target="_blank" rel="noopener">Ver afiche de horarios <span class="sr-only">(abre en otra pestaña)</span> <span aria-hidden="true">↗</span></a></p><?php endif; ?>
+                <?php if ($links['boxmagic_url']): ?><div class="plan-actions"><a class="button" href="<?= e($links['boxmagic_url']) ?>">Agendar clase <span aria-hidden="true">↗</span></a></div><?php endif; ?>
             </div>
         </div>
-        <?php if ($links['boxmagic_url']): ?><div class="reservation-note"><p>¿Ya eres parte del box? Gestiona tus reservas en Boxmagic.</p><a class="text-link" href="<?= e($links['boxmagic_url']) ?>">Ir a Boxmagic <span aria-hidden="true">↗</span></a></div><?php endif; ?>
     </div></section>
     <section id="galeria" class="section identity"><div class="container">
         <div class="section-heading"><div><p class="eyebrow">DESDE ADENTRO</p><h2>ASÍ NOS IDENTIFICAMOS.</h2></div><p>Negro, blanco y toda la energía del amarillo.<br>Esta es la identidad de Xommafitnes.</p></div>
@@ -136,10 +156,7 @@
     <section id="contacto" class="section contact"><div class="container">
         <p class="eyebrow">TU SIGUIENTE PASO</p><h2>HAGAMOS<br>QUE PASE<span>.</span></h2>
         <div class="contact-grid"><div><p class="contact-intro">Conoce el box. Pregunta por los planes.<br>Encuentra una razón para comenzar.</p>
-            <?php if ($links['whatsapp_url']): ?><a class="button" href="<?= e($links['whatsapp_url']) ?>">Hablemos por WhatsApp <span aria-hidden="true">↗</span></a>
-            <?php elseif ($email): ?><a class="button" href="mailto:<?= e($email) ?>">Escríbenos <span aria-hidden="true">↗</span></a>
-            <?php elseif ($links['instagram_url']): ?><a class="button" href="<?= e($links['instagram_url']) ?>">Consultar por Instagram <span aria-hidden="true">↗</span></a>
-            <?php elseif ($links['facebook_url']): ?><a class="button" href="<?= e($links['facebook_url']) ?>">Consultar por Facebook <span aria-hidden="true">↗</span></a>
+            <?php if ($consultUrl): ?><a class="button" href="<?= e($consultUrl) ?>"><?= e($consultLabel) ?> <span aria-hidden="true">↗</span></a>
             <?php else: ?><div class="contact-status"><span class="status-dot" aria-hidden="true"></span><p>Pronto compartiremos nuestros canales oficiales de contacto.</p></div><?php endif; ?>
         </div><dl class="contact-details"><div><dt>UBICACIÓN</dt><dd><?= e($contact['address'] ?: 'Chile') ?></dd><?php if ($links['maps_url']): ?><dd><a href="<?= e($links['maps_url']) ?>">Ver ubicación en el mapa ↗</a></dd><?php endif; ?></div>
             <?php if ($email): ?><div><dt>CORREO</dt><dd><a href="mailto:<?= e($email) ?>"><?= e($email) ?></a></dd></div><?php endif; ?>

@@ -33,6 +33,31 @@ function program_consult_url(?string $whatsapp, string $message): string
     return 'https://wa.me/' . $match[1] . '?text=' . rawurlencode($message);
 }
 
+// Despliega los grupos publicados sin mantener una segunda agenda con horarios.
+function schedule_by_day(array $schedule): array
+{
+    $names = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo', 'Feriados'];
+    $days = array_map(static fn (string $name): array => ['name' => $name, 'classes' => []], $names);
+    foreach ($schedule as $slot) {
+        preg_match_all('/lunes|martes|miércoles|jueves|viernes|sábados?|domingos?|feriados?/iu', $slot['days'], $matches);
+        $indices = [];
+        foreach ($matches[0] as $matched) {
+            foreach ($names as $index => $name) {
+                if (preg_match('/^' . preg_quote($name, '/') . 's?$/iu', $matched)) $indices[] = $index;
+            }
+        }
+        if (str_contains($slot['days'], ' a ') && count($indices) === 2) {
+            $indices = range($indices[0], $indices[1]);
+        }
+        foreach (array_unique($indices) as $index) $days[$index]['classes'][] = $slot;
+    }
+    foreach ($days as &$day) {
+        usort($day['classes'], static fn (array $a, array $b): int => strcmp($a['hours'], $b['hours']));
+    }
+    unset($day);
+    return $days;
+}
+
 function load_site(string $root): array
 {
     $site = require $root . '/config/site.php';
@@ -49,11 +74,21 @@ function render_home(array $site, ?string $publicRoot = null): void
     $publicRoot ??= dirname(__DIR__) . '/public';
     $contact = $site['contact'];
     $links = [];
-    foreach (['whatsapp_url', 'maps_url', 'instagram_url', 'facebook_url', 'boxmagic_url'] as $key) {
+    foreach (['whatsapp_url', 'maps_url', 'instagram_url', 'facebook_url', 'boxmagic_url', 'boxmagic_store_url'] as $key) {
         $links[$key] = https_url($contact[$key] ?? null);
     }
     $email = filter_var($contact['email'] ?? '', FILTER_VALIDATE_EMAIL) ?: null;
+    // Una misma prioridad de canales para contacto y consultas de planes.
+    $consultUrl = $links['whatsapp_url'] ?? ($email ? 'mailto:' . $email : null)
+        ?? $links['instagram_url'] ?? $links['facebook_url'];
+    $consultLabel = $links['whatsapp_url'] ? 'Hablemos por WhatsApp'
+        : ($email ? 'Escríbenos' : ($links['instagram_url'] ? 'Consultar por Instagram' : 'Consultar por Facebook'));
     $canonical = https_url($site['canonical_url'] ?? null);
+    $scheduleDays = schedule_by_day($site['schedule']);
+    $scheduleImage = image_path($site['schedule_image'] ?? '');
+    $scheduleImageSize = $scheduleImage && is_file($publicRoot . '/' . $scheduleImage)
+        ? getimagesize($publicRoot . '/' . $scheduleImage) : false;
+    if (!$scheduleImageSize) $scheduleImage = null;
     $hero = $site['hero'];
     $heroImage = image_path($hero['image'] ?? '');
     if (!$heroImage || !is_file($publicRoot . '/' . $heroImage)) {

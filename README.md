@@ -16,6 +16,7 @@ Abrir http://127.0.0.1:8080. Detener con Ctrl+C. Si el PHP local advierte que no
 Get-ChildItem app,config,public,tests -Recurse -Filter *.php | ForEach-Object { php -n -l $_.FullName }
 php -n tests/smoke.php
 node --check public/assets/js/site.js
+node tests/agenda.js
 ```
 
 ## Estructura y edición
@@ -63,7 +64,24 @@ Si se permite cambiar document root, subir el proyecto privado y apuntarlo a `pu
 
 Futuro respaldo: archivos privados y dump cifrado de base de datos fuera del sitio público, acceso limitado, retención acordada y ensayo de restauración en entorno aislado antes de usar datos reales.
 
+## Planes y accesos a Boxmagic
+
+La navegación y el título «Planes y horarios» conservan `#planes`. Tarifas compactas bajo «Planes mensuales Full Day»: siete opciones mensuales entre 8 y 32 clases, con precios entre $45.000 y $75.000 CLP, y la condición de que las clases no se acumulan para el mes siguiente. Fuente: datos de la imagen transcritos por el usuario. Cambios solo locales, pendientes de confirmación de vigencia por el dueño antes de publicar. No se presuponen disciplinas incluidas, franjas horarias ni matrícula.
+
+Editar los siete pares en `plans` de `config/site.php`: `classes` es la cantidad mensual y `price` un entero en CLP (por ejemplo, `45000`). Mantener el orden ascendente; la vista agrega `$` y separadores de miles. `plans_title` y `plans_condition` contienen el título y la condición. Bajo la tabla hay una sola consulta «Consultar planes» al Instagram confirmado. Comparte la prioridad de Contacto: WhatsApp, correo, Instagram y Facebook. Los horarios mantienen su tabla o su consulta cuando faltan datos.
+
+En `config/site.php`, dentro de `contact`, pegar únicamente enlaces oficiales confirmados:
+
+- `boxmagic_store_url`: tienda oficial; habilita «Comprar o renovar plan» como acción principal.
+- `boxmagic_url`: reservas; habilita «Agendar clase», independientemente de la tienda.
+
+Ambos quedan en `null` hasta recibirlos. Solo se aceptan URLs HTTPS válidas sin credenciales; una URL ausente o inválida omite su acción. Las consultas siguen disponibles. La validación comprueba el formato, no acredita la pertenencia a Boxmagic: el dueño debe entregar los destinos oficiales. La tienda dentro de la página espera el código oficial; no hay cobros propios, activación de membresías ni sincronización.
+
+Revisión local: iniciar el servidor indicado arriba y abrir `http://127.0.0.1:8080/#planes`. Ejecutar `php -n tests/smoke.php` para probar sin URLs, tienda sola, reservas solas, ambas y URLs inválidas, con datos temporales exclusivamente en memoria. Compra y reserva reales quedan pendientes hasta recibir los enlaces. La revisión visual requiere capturas actuales de escritorio y móvil del usuario.
+
 ## Disciplinas
+
+Los horarios en `config/site.php`, clave `schedule`, son la única fuente de la agenda diaria bajo «Horarios de clases». `schedule_by_day()` desglosa rangos y grupos y ordena las clases por hora. Con JavaScript, el selector ofrece lunes a domingo y feriados; soporta clic, Tab, flechas izquierda/derecha y Home/End. Sin JavaScript todos los días quedan visibles. Lunes a las 19:00 hay CrossFit; miércoles a las 19:00 Halterofilia y a las 20:00 Fatburn; el viernes no hay clase publicada a las 21:00. Sábados, domingos y feriados: CrossFit a las 10:00. No se infieren horarios ni inclusión en planes de otras disciplinas. `schedule_image` conserva el enlace secundario «Ver afiche de horarios», en otra pestaña. La portada sigue usando `hero.image`, actualmente `box-xomma.jpeg`.
 
 El bloque `#entrenamiento` presenta CrossFit, Halterofilia, HYROX y Musculación en dos columnas, o una en móvil. Título e introducción: `training_title` y `training_intro` en `config/site.php`. Cada entrada de `programs` contiene nombre, descripción, CTA y mensaje editable. Sin WhatsApp se enlaza a Contacto, donde está Instagram; al configurar una URL `https://wa.me/NUMERO` válida se genera un mensaje específico codificado, sin enviarlo automáticamente.
 

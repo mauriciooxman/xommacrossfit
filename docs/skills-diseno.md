@@ -61,7 +61,37 @@ Validación posterior: sintaxis de cinco PHP y del JavaScript correcta; 145 comp
 
 Pendiente de capturas posteriores a los cambios: escritorio a 1440 px (cabecera/hero, cuatro disciplinas y contacto/pie); móvil a 390 px y, si es posible, 320 px (mismas secciones y menú abierto); ancho intermedio de 900–1024 px para la transición de navegación. Revisar saltos de título, alineación de consultas, altura y desplazamiento del menú, legibilidad, foco y encuadre real. Las capturas iniciales, si se comparten después, servirán de comparación, no de validación del resultado actual.
 
+## Planes y accesos a Boxmagic (2026-11-04)
+
+Cambio acotado: título «Planes», texto confirmado y consulta directa al canal de Contacto (actualmente Instagram). Botón amarillo a todo el ancho en móvil según CSS. `contact.boxmagic_store_url` habilita compra/renovación; `contact.boxmagic_url` conserva su función de reservas y habilita «Agendar clase». Ambos siguen en `null`. Se preservan `#planes`, la navegación y el renderizado de horarios. Sin tienda incrustada ni operaciones comerciales propias.
+
+Validación local: cinco PHP sin errores de sintaxis, JavaScript sin errores de sintaxis, 252 comprobaciones aprobadas y `git diff --check` sin errores. Los fixtures en memoria cubren tienda y reservas por separado, ambas, URLs inválidas, persistencia de consultas y horarios. HTTP 200 de portada, CSS y JS; el HTML servido enlaza «Consultar planes» al Instagram configurado. La consulta externa de Instagram no permitió verificar su disponibilidad: conexión remota fallida y lectura web bloqueada por robots.txt. Pendiente comprobar apertura manual del perfil, capturas actuales de escritorio/móvil y compra/reserva reales cuando el dueño entregue los enlaces. Sin BMAD, Playwright, descargas, publicación ni push.
+
+## Tabla mensual Full Day (2026-11-04)
+
+Se reemplazó el listado de tarjetas por una tabla HTML con encabezados de columna/fila, título y condición asociados. Los siete pares de clases y precios provienen de la transcripción de la imagen entregada por el usuario; `plans` guarda clases y CLP como enteros. La vista formatea los miles. Se conserva negro/amarillo, precios a la derecha, una consulta al Instagram configurado, horarios, anclas y accesos condicionales a Boxmagic. No se añadieron disciplinas incluidas, horarios de acceso, matrícula ni equivalencias semanales.
+
+Validación: 268 comprobaciones aprobadas; sintaxis PHP/JS correcta; HTTP 200 de portada y CSS, siete pares exactos en orden y consulta a Instagram comprobados en el HTML servido. CSS de tabla de ancho fijo, encabezados con salto de línea y sin ancho mínimo: revisión estática para móvil, sin evidencia visual nueva. Pendiente capturas actuales de escritorio/móvil y confirmación de vigencia de la tarifa por el dueño antes de publicar. Cambios exclusivamente locales, sin publicación ni push; sin BMAD ni Playwright.
+
+## Horarios de la imagen y portada solicitada
+
+Se transcribieron los horarios visibles a `schedule` y se mantuvo la tabla accesible existente y su ancla. Se conservaron los vacíos del lunes por la mañana; sábados, domingos y feriados a las 10:00 sin atribuirles disciplina. Consulta de horarios directa al contacto configurado. Validación: sintaxis de los cinco PHP y JavaScript correcta, 274 comprobaciones aprobadas, incluyendo cada fila de horarios. No se ejecutó revisión visual.
+
+Actualización tras recibir los archivos: se incorporaron `box-xomma.jpeg` como portada (900 × 1600) y `horarios-xomma.jpeg` como cartel ampliable (1600 × 1131), sin modificar los píxeles. Se eliminaron de la configuración las variantes de la foto anterior. La tabla de horarios permanece en un desplegable accesible. La nueva imagen difiere de la primera: viernes a las 21:00 vacío y CrossFit los sábados, domingos y feriados a las 10:00; la transcripción se actualizó a esta versión. Sintaxis PHP/JS correcta y 297 comprobaciones aprobadas. Pendiente revisión visual del renderizado en escritorio/móvil. Sin BMAD, Playwright, publicación ni push.
+
 ## Disponibilidad de usuario
+
+### Rediseño de tarifas y agenda diaria
+
+Sección `#planes`: título «Planes y horarios», dos columnas desde 901 px y bloques apilados por debajo. Se retiraron los paneles con borde de esta sección. Tarifas con cantidad y precio en la misma fila, ancho máximo de 440 px en escritorio, ancho disponible en móvil, cifras tabulares y una indicación de moneda/periodicidad. Datos comerciales y enlaces de Boxmagic intactos.
+
+La agenda se genera únicamente desde `schedule`, con días y feriados explícitos. JavaScript habilita pestañas accesibles (selección por clic, flechas, Home/End y foco); sin JS los ocho días permanecen visibles. El afiche queda como enlace secundario en otra pestaña. No se añadieron horarios ni disciplinas.
+
+Validación actual: 311 comprobaciones PHP, sintaxis de cinco PHP y JavaScript, prueba de interacción con DOM simulado en `tests/agenda.js`, y HTTP 200 de portada, CSS, JS y afiche. Agenda contrastada por día con los datos originales, incluyendo lunes, miércoles, viernes y feriados. Tareas verificadas en HTML/datos: 12 clases cuestan $50.000 mensuales; miércoles después de las 18:00: 19:00 Halterofilia, 20:00 Fatburn, 21:00 CrossFit. No se observó el resultado en navegador: rapidez de lectura y aspecto real en móvil/escritorio pendientes de capturas actuales. Sin BMAD, Playwright, publicación ni push.
+
+### Ajuste de lectura de horarios
+
+El cartel ocupa ahora todo el ancho de la grilla, en una fila propia. Se retiraron el enlace de la imagen y «Ampliar horarios», que abandonaban la página. La tabla de texto queda siempre visible con fuente de 16 px, sin desplegable. Comprobaciones: 285 aprobadas, sintaxis PHP/JS correcta y HTTP local 200; sin enlace al archivo de imagen en el HTML. Pendiente revisión visual del resultado en escritorio y móvil. Sin publicación ni push.
 
 Se comprobó que `CODEX_HOME` no está definido, no hay un perfil alternativo declarado en `config.toml` ni `AGENTS.override.md` global. La configuración global es `C:/Users/mauro/.codex/AGENTS.md`. Se añadió únicamente el bloque `oxman-diseno-global-v1`, manteniendo byte a byte todo el contenido previo y respaldándolo en `C:/Users/mauro/.codex/AGENTS.md.before-design-global.bak`. Las reglas particulares de este proyecto permanecen en su AGENTS.md local.
 
