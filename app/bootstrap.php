@@ -1,6 +1,11 @@
 <?php
 declare(strict_types=1);
 
+function demonstration_mode(): bool
+{
+    return (require dirname(__DIR__) . '/config/demo.php')['enabled'] === true;
+}
+
 function e(string $value): string
 {
     return htmlspecialchars($value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -71,7 +76,9 @@ function load_site(string $root): array
 
 function render_home(array $site, ?string $publicRoot = null): void
 {
+    $demoMode = demonstration_mode();
     $publicRoot ??= dirname(__DIR__) . '/public';
+    $checkoutEnvironment = (require dirname(__DIR__) . '/config/checkout.php')['environment'];
     $contact = $site['contact'];
     $links = [];
     foreach (['whatsapp_url', 'maps_url', 'instagram_url', 'facebook_url', 'boxmagic_url', 'boxmagic_store_url'] as $key) {

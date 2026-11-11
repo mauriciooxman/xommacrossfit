@@ -1,0 +1,52 @@
+/* Checkout: conserva tipografía, negro y amarillo de la web. Sin movimiento añadido. */
+.checkout-header,.checkout-main,.checkout-footer { width:min(1060px,calc(100% - 48px)); margin-inline:auto; }
+.checkout-header { display:flex; align-items:center; justify-content:space-between; gap:24px; padding-block:28px; border-bottom:1px solid var(--line); }
+.checkout-header img { width:220px; }
+.checkout-header span { color:var(--lime); font-size:14px; }
+.checkout-main { padding-block:48px 64px; }
+.checkout-main h1 { font-size:clamp(32px,5vw,48px); line-height:1.15; letter-spacing:-.025em; }
+.checkout-main h2 { font-size:24px; line-height:1.3; margin-bottom:24px; text-transform:none; }
+.checkout-main h3 { font-size:20px; margin-top:32px; }
+.checkout-intro { margin-top:16px; color:var(--muted); max-width:65ch; }
+.checkout-layout { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:56px; margin-top:36px; }
+.checkout-summary { padding:28px; background:var(--surface); align-self:start; }
+.checkout-main p { max-width:65ch; overflow-wrap:anywhere; }
+.checkout-main dl { margin:0 0 24px; }
+.checkout-main dl div { display:flex; justify-content:space-between; gap:24px; padding-block:14px; border-bottom:1px solid var(--line); }
+.checkout-main dt { color:var(--muted); }
+.checkout-main dd { margin:0; text-align:right; font-weight:700; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; min-width:0; }
+.checkout-reference { overflow-wrap:anywhere; }
+.checkout-selector { margin-top:32px; max-width:660px; }
+.checkout-selector>div { display:flex; gap:16px; margin-top:8px; }
+.checkout-selector select { flex:1; min-width:0; }
+.checkout-form>label { display:block; margin:20px 0 6px; }
+.checkout-page input:not([type=radio]):not([type=hidden]),.checkout-page select { font:inherit; border:1px solid #737969; border-radius:4px; background:var(--surface); color:var(--text); padding:12px; caret-color:var(--lime); }
+.checkout-form>input:not([type=hidden]) { width:100%; }
+.checkout-page input:focus-visible,.checkout-page select:focus-visible { outline:3px solid var(--lime); outline-offset:3px; }
+.checkout-page input[type=radio] { accent-color:var(--lime); width:18px; height:18px; flex:none; }
+.checkout-form fieldset { padding:0; border:0; margin:28px 0; min-width:0; }
+.checkout-form legend { font-weight:700; margin-bottom:10px; }
+.checkout-form fieldset label { display:flex; gap:10px; align-items:center; min-height:44px; }
+.checkout-form fieldset p,.checkout-form>p { font-size:14px; color:var(--muted); margin-top:12px; }
+.checkout-disabled { color:var(--muted); cursor:not-allowed; }
+.checkout-page button { cursor:pointer; min-height:44px; }
+.checkout-page button:disabled { cursor:not-allowed; opacity:.65; transform:none; box-shadow:none; }
+.checkout-page .button { border:0; white-space:normal; text-align:center; line-height:1.4; }
+.checkout-secondary { background:transparent; color:var(--text); border:1px solid #737969; border-radius:4px; padding:10px 16px; font:inherit; text-decoration:underline; text-underline-offset:4px; }
+.checkout-secondary:hover { border-color:var(--lime); color:var(--lime); }
+.checkout-actions { display:flex; flex-wrap:wrap; gap:16px; margin-block:28px; }
+.checkout-result>form { margin-top:24px; }
+.checkout-notice { border:1px solid var(--lime); padding:20px; margin-block:24px; }
+.checkout-footer { border-top:1px solid var(--line); padding-block:24px; color:var(--muted); }
+.checkout-footer a { text-decoration:underline; text-underline-offset:4px; }
+@media(max-width:700px) {
+  .checkout-header { flex-direction:column; align-items:flex-start; gap:12px; }
+  .checkout-header,.checkout-main,.checkout-footer { width:calc(100% - 32px); }
+  .checkout-layout { grid-template-columns:minmax(0,1fr); gap:32px; }
+  .checkout-main { padding-top:32px; }
+  .checkout-summary { padding:20px; }
+  .checkout-selector>div { flex-direction:column; }
+  .checkout-main dl div { gap:16px; }
+  .checkout-main dl div>* { flex:1; }
+  .checkout-form .button,.checkout-actions,.checkout-actions form,.checkout-actions button { width:100%; }
+}

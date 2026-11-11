@@ -1,0 +1,41 @@
+CREATE TABLE IF NOT EXISTS checkout_orders (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    reference CHAR(24) CHARACTER SET ascii COLLATE ascii_bin NOT NULL UNIQUE,
+    owner_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    request_key CHAR(64) CHARACTER SET ascii COLLATE ascii_bin NOT NULL UNIQUE,
+    plan_id VARCHAR(32) NOT NULL,
+    plan_snapshot TEXT NOT NULL,
+    classes SMALLINT UNSIGNED NOT NULL,
+    amount INT UNSIGNED NOT NULL,
+    customer_name VARCHAR(200) NOT NULL,
+    customer_email VARCHAR(254) NOT NULL,
+    student_type VARCHAR(16) NOT NULL,
+    payment_method VARCHAR(16) NOT NULL,
+    payment_status VARCHAR(32) NOT NULL DEFAULT 'pending',
+    activation_status VARCHAR(32) NOT NULL DEFAULT 'pending',
+    bank_snapshot TEXT NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    INDEX (owner_hash),
+    CHECK (amount > 0), CHECK (classes > 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS checkout_payment_attempts (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    order_id BIGINT UNSIGNED NOT NULL,
+    buy_order CHAR(24) CHARACTER SET ascii COLLATE ascii_bin NOT NULL UNIQUE,
+    session_id CHAR(32) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
+    token VARCHAR(64) CHARACTER SET ascii COLLATE ascii_bin NULL UNIQUE,
+    redirect_url VARCHAR(255) NULL,
+    status VARCHAR(32) NOT NULL DEFAULT 'creating',
+    return_kind VARCHAR(24) NULL,
+    gateway_status VARCHAR(32) NULL,
+    response_code INT NULL,
+    authorization_code VARCHAR(32) NULL,
+    commit_started_at DATETIME(6) NULL,
+    checked_at DATETIME(6) NULL,
+    created_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    updated_at DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    FOREIGN KEY (order_id) REFERENCES checkout_orders(id) ON DELETE RESTRICT,
+    INDEX (status, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

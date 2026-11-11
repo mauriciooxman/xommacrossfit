@@ -85,7 +85,10 @@ check(substr_count($plansPage, '>Consultar planes <span') === 1, 'Consulta únic
 $emptyPlans = $site;
 $emptyPlans['plans'] = [];
 check(!str_contains(plans_html($emptyPlans), 'class="plans-table"'), 'Sin tabla vacía cuando faltan planes');
-check(str_contains($plansPage, 'class="button" href="https://www.instagram.com/xommafitness/">Consultar planes'), 'Consulta principal al contacto confirmado');
+check(str_contains($plansPage, 'class="plans-action plans-action--secondary" href="https://www.instagram.com/xommafitness/">Consultar planes'), 'Consulta secundaria al contacto confirmado');
+check(str_contains($plansPage, 'href="checkout.php" aria-describedby="purchase-test-note">Comprar plan <span'), 'Compra conserva checkout y nota accesible en integración');
+check(str_contains($plansPage, '>Modo de prueba · sin cobros reales</p>'), 'Advertencia independiente en entorno de integración');
+check(str_contains($plansPage, 'class="plans-action plans-action--secondary" href="https://www.instagram.com/xommafitness/">Consultar horarios'), 'Horarios conserva contacto y estilo secundario');
 check(!str_contains($plansPage, 'Comprar o renovar plan') && !str_contains($plansPage, 'Agendar clase'), 'Sin acciones Boxmagic pendientes');
 check(!str_contains($plansPage, 'plan-row'), 'Sin tarjetas de planes vacías');
 check(str_contains($page, 'href="#planes">Planes y horarios'), 'Navegación conserva ancla');
@@ -206,7 +209,7 @@ check(str_contains($configured, '<time>18:30</time><span>Prueba</span>'), 'Horar
 check(str_contains($configured, 'Prueba &lt;b&gt;escape&lt;/b&gt;'), 'Escape del título de planes');
 check(str_contains($configured, 'Condición &lt;script&gt;prueba&lt;/script&gt;'), 'Escape de condición de planes');
 check(str_contains($configured, '<td>$1.234</td>'), 'Precio entero formateado al renderizar');
-check(str_contains($configured, 'class="photo-grid"'), 'Galería configurada visible');
+check(!str_contains($configured, 'id="galeria"'), 'Sección de identidad retirada aunque haya fotos configuradas');
 check(str_contains($configured, 'class="floating-contact"'), 'WhatsApp configurado visible');
 check(str_contains($configured, 'href="mailto:test@example.org"'), 'Correo confirmado visible');
 check(str_contains($configured, 'rel="canonical"'), 'Dominio confirmado visible');

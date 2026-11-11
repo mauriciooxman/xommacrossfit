@@ -1,6 +1,10 @@
 # Xommafitnes
 
-Primera versión local de la web pública. PHP renderiza HTML; CSS y un pequeño script controlan la presentación y el menú móvil. Sin framework, paquetes, cookies, analítica, formularios, base de datos ni servicios externos en esta etapa. No se ha publicado ni enviado correo.
+Web local en PHP, CSS y JavaScript, sin framework. Incluye checkout con MySQL y SDK oficial Webpay Plus **solo en integración**. El checkout usa cookies privadas para proteger órdenes; no incorpora analítica ni envía correo. Sin despliegue permanente en hosting.
+
+Presentación temporal al cliente: [demostración protegida, procesos y cierre](docs/demo-temporal.md). Mientras esté activa, el checkout público es solo una vista previa y no procesa operaciones.
+
+Compra local: [guía de configuración, pruebas y pendientes](docs/checkout.md). No usar `php -n` para ejecutar el checkout: necesita las extensiones de PHP y Composer indicadas en esa guía.
 
 ## Ejecutar
 
@@ -25,10 +29,10 @@ node tests/agenda.js
 - `app/bootstrap.php`: carga, escape y validación de URLs; `app/views/home.php`: vista.
 - `config/site.php`: **todos los datos públicos** confirmados y pendientes. `null`/`[]` ocultan canales, entrenadores y contenidos sin confirmar. Al modificar planes, ubicación o contactos, revisar también las respuestas de `faq` en ese archivo.
 - `config/local.php`: opcional, ignorado por Git; devuelve un array de sobreescrituras. Reservado para configuración privada futura. No poner contraseñas en `site.php`.
-- `storage/`: reservado, privado, vacío. No recibe ni procesa datos.
+- `storage/`: privado, ignorado por Git; sesiones del checkout y datos de la instancia MySQL local de prueba.
 - `docs/`: alcance y diseño futuro. `tests/`: comprobaciones sin dependencias.
 
-WhatsApp, redes, mapa y Boxmagic aparecen solo con URLs HTTPS válidas. No se genera mapa embebido ni petición a terceros. Los enlaces se abren en la misma pestaña. El botón principal baja a contacto hasta configurar WhatsApp. Sin un canal confirmado todavía **no hay captación operativa**. No hay formulario ni mensaje de envío exitoso; las peticiones POST devuelven 405.
+WhatsApp, redes, mapa y Boxmagic aparecen solo con URLs HTTPS válidas. No se genera mapa embebido. El checkout se comunica con Transbank integración desde PHP; el navegador ingresa tarjetas exclusivamente en su formulario oficial. El botón principal baja a contacto hasta configurar WhatsApp. La portada conserva su respuesta 405 a POST; `checkout.php` procesa sus propios formularios.
 
 Se conservan los cuatro JPEG originales. Los WebP de `public/assets/images/` son recortes y reducciones de los logos suministrados, sin fotografías inventadas. Añadir fotos autorizadas optimizadas a esa carpeta y completar `gallery` con ruta relativa, texto alternativo y dimensiones. Confirmar permisos de imagen de las personas antes de publicarlas. El nombre visible provisional es «Xommafitnes» aunque el logotipo recibido dice «Xomma Fitness».
 

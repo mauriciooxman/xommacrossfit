@@ -19,6 +19,7 @@
     <script src="assets/js/site.js" defer></script>
 </head>
 <body>
+<?php if ($demoMode): ?><p class="demo-banner" role="status">Demostración · Puedes explorar el sitio y el checkout. Órdenes, pagos, transferencias y envíos de correo deshabilitados.</p><?php endif; ?>
 <a class="skip-link" href="#contenido">Saltar al contenido</a>
 <header class="site-header">
     <div class="container header-inner">
@@ -71,7 +72,7 @@
     <section id="comunidad" class="section community">
         <div class="container split">
             <div><p class="eyebrow">01 / NUESTRA IDENTIDAD</p><h2>EL ESFUERZO<br>SE COMPARTE.</h2></div>
-            <div class="section-copy"><p class="lead">Un nombre. Muchas ganas de moverse.</p><p>Somos <?= e($site['name']) ?>, un gimnasio de CrossFit en Chile. En nuestra identidad hay palabras que nos reúnen: amigos, constancia, fuerza y familia.</p><a class="text-link" href="#galeria">Conoce nuestra identidad <span aria-hidden="true">↘</span></a></div>
+            <div class="section-copy"><p class="lead">Un nombre. Muchas ganas de moverse.</p><p>Somos <?= e($site['name']) ?>, un gimnasio de CrossFit en Chile. En nuestra identidad hay palabras que nos reúnen: amigos, constancia, fuerza y familia.</p></div>
         </div>
     </section>
     <section id="entrenamiento" class="section training" aria-labelledby="training-title">
@@ -117,8 +118,12 @@
                 <p id="plans-condition" class="plans-condition"><?= e($site['plans_condition']) ?></p>
                 <?php else: ?><p><?= e($site['plans_intro']) ?></p><?php endif; ?>
                 <div class="plan-actions">
+                    <div class="plan-purchase">
+                        <a class="plans-action plans-action--primary" href="checkout.php"<?= $checkoutEnvironment === 'integration' ? ' aria-describedby="purchase-test-note"' : '' ?>>Comprar plan <span aria-hidden="true">→</span></a>
+                        <?php if ($checkoutEnvironment === 'integration'): ?><p id="purchase-test-note" class="purchase-test-note">Modo de prueba · sin cobros reales</p><?php endif; ?>
+                    </div>
+                    <a class="plans-action plans-action--secondary" href="<?= e($consultUrl ?? '#contacto') ?>">Consultar planes <span aria-hidden="true">↗</span></a>
                     <?php if ($links['boxmagic_store_url']): ?><a class="button" href="<?= e($links['boxmagic_store_url']) ?>">Comprar o renovar plan <span aria-hidden="true">↗</span></a><?php endif; ?>
-                    <a class="<?= $links['boxmagic_store_url'] ? 'text-link' : 'button' ?>" href="<?= e($consultUrl ?? '#contacto') ?>">Consultar planes <span aria-hidden="true">↗</span></a>
                 </div>
             </div>
             <div class="agenda-block" data-agenda><h3>Horarios de clases</h3>
@@ -133,21 +138,11 @@
                     </ul><?php else: ?><p>No hay clases publicadas para este día.</p><?php endif; ?>
                 </div>
                 <?php endforeach; ?>
-                <a class="text-link" href="<?= e($consultUrl ?? '#contacto') ?>">Consultar horarios <span aria-hidden="true">↗</span></a>
+                <div class="schedule-actions"><a class="plans-action plans-action--secondary" href="<?= e($consultUrl ?? '#contacto') ?>">Consultar horarios <span aria-hidden="true">↗</span></a></div>
                 <?php if ($scheduleImage): ?><p class="poster-link"><a href="<?= e($scheduleImage) ?>" target="_blank" rel="noopener">Ver afiche de horarios <span class="sr-only">(abre en otra pestaña)</span> <span aria-hidden="true">↗</span></a></p><?php endif; ?>
                 <?php if ($links['boxmagic_url']): ?><div class="plan-actions"><a class="button" href="<?= e($links['boxmagic_url']) ?>">Agendar clase <span aria-hidden="true">↗</span></a></div><?php endif; ?>
             </div>
         </div>
-    </div></section>
-    <section id="galeria" class="section identity"><div class="container">
-        <div class="section-heading"><div><p class="eyebrow">DESDE ADENTRO</p><h2>ASÍ NOS IDENTIFICAMOS.</h2></div><p>Negro, blanco y toda la energía del amarillo.<br>Esta es la identidad de Xommafitnes.</p></div>
-        <div class="identity-grid">
-            <figure class="identity-logo"><img src="assets/images/logo.webp" width="600" height="144" alt="Logotipo de Xomma Fitness en blanco y amarillo sobre negro" loading="lazy"><figcaption>NUESTRO NOMBRE / NUESTRA ENERGÍA</figcaption></figure>
-            <figure class="identity-symbol"><img src="assets/images/identidad.webp" width="640" height="640" alt="Símbolo amarillo de Xomma con palabras como amigos, fuerza y constancia" loading="lazy"><figcaption>PALABRAS QUE NOS MUEVEN</figcaption></figure>
-        </div>
-        <?php if ($gallery): ?><div class="photo-grid"><?php foreach ($gallery as $photo): ?>
-            <figure><img src="<?= e($photo['src']) ?>" alt="<?= e($photo['alt']) ?>" width="<?= (int) $photo['width'] ?>" height="<?= (int) $photo['height'] ?>" loading="lazy" decoding="async"></figure>
-        <?php endforeach; ?></div><?php endif; ?>
     </div></section>
     <section id="preguntas" class="section faq"><div class="container split">
         <div><p class="eyebrow">ANTES DE DAR EL PASO</p><h2>¿CONVERSAMOS?</h2><p>Algunas respuestas para empezar.</p></div>
